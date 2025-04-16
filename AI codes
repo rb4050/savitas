@@ -1,0 +1,194 @@
+1. DFS
+# DFS on a graph represented as adjacency list
+def dfs(graph, start, visited=None):
+    if visited is None:
+        visited = set()
+
+    visited.add(start)  # Mark node as visited
+    print(start, end=' ')  # Visit the node
+
+    for neighbor in graph[start]:
+        if neighbor not in visited:
+            dfs(graph, neighbor, visited)
+
+# Example graph
+graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F'],
+    'D': [],
+    'E': ['F'],
+    'F': []
+}
+
+print("DFS starting from A:")
+dfs(graph, 'A')
+
+
+
+
+
+
+
+2. best first search
+import heapq
+
+def best_first_search(graph, start, goal, heuristics):
+    visited = set()
+    pq = []
+    heapq.heappush(pq, (heuristics[start], start))  # Priority queue with (heuristic, node)
+
+    while pq:
+        h, node = heapq.heappop(pq)
+        if node in visited:
+            continue
+
+        print(node, end=' ')
+        visited.add(node)
+
+        if node == goal:
+            print("\nGoal found!")
+            return
+
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                heapq.heappush(pq, (heuristics[neighbor], neighbor))
+
+# Sample graph and heuristic values
+graph = {
+    'S': ['A', 'B'],
+    'A': ['C', 'D'],
+    'B': ['E'],
+    'C': [],
+    'D': [],
+    'E': ['G'],
+    'G': []
+}
+
+heuristics = {
+    'S': 5, 'A': 4, 'B': 2,
+    'C': 6, 'D': 3, 'E': 1,
+    'G': 0
+}
+
+print("Best First Search from S to G:")
+best_first_search(graph, 'S', 'G', heuristics)
+
+
+
+
+3.tsp
+
+from itertools import permutations
+
+def tsp_brute_force(cities, distances):
+    min_path = None
+    min_cost = float('inf')
+
+    for perm in permutations(cities):
+        cost = 0
+        for i in range(len(perm) - 1):
+            cost += distances[perm[i]][perm[i+1]]
+        cost += distances[perm[-1]][perm[0]]  # return to start
+
+        if cost < min_cost:
+            min_cost = cost
+            min_path = perm
+
+    print("Minimum cost path:", min_path)
+    print("Minimum cost:", min_cost)
+
+# Example distance matrix
+cities = ['A', 'B', 'C', 'D']
+distances = {
+    'A': {'A': 0, 'B': 10, 'C': 15, 'D': 20},
+    'B': {'A': 10, 'B': 0, 'C': 35, 'D': 25},
+    'C': {'A': 15, 'B': 35, 'C': 0, 'D': 30},
+    'D': {'A': 20, 'B': 25, 'C': 30, 'D': 0}
+}
+
+tsp_brute_force(cities, distances)
+
+
+
+
+4. water jug prolog
+
+% State is represented as state(JugA, JugB)
+
+% Goal state
+goal(state(2, _)).
+goal(state(_, 2)).
+
+% Possible moves
+move(state(_, B), fillA, state(4, B)).
+move(state(A, _), fillB, state(A, 3)).
+move(state(_, B), emptyA, state(0, B)).
+move(state(A, _), emptyB, state(A, 0)).
+move(state(A, B), pourAtoB, state(NA, NB)) :-
+    Total is A + B,
+    (Total =< 3 -> NA = 0, NB = Total ; NA is Total - 3, NB = 3).
+move(state(A, B), pourBtoA, state(NA, NB)) :-
+    Total is A + B,
+    (Total =< 4 -> NA = Total, NB = 0 ; NA = 4, NB is Total - 4).
+
+% Find sequence of moves
+solve(State, _, []) :- goal(State).
+solve(State, Visited, [Move|Moves]) :-
+    move(State, Move, NewState),
+    \+ member(NewState, Visited),
+    solve(NewState, [NewState|Visited], Moves).
+
+% Start the solution from (0, 0)
+start(Moves) :-
+    solve(state(0, 0), [state(0, 0)], Moves),
+    write('Solution steps:'), nl,
+    write(Moves), nl.
+
+% Automatically run when program starts
+:- initialization(start(_)).
+
+
+
+5. simple facts
+
+% Genders
+male(ram).
+male(rohan).
+male(rohit).
+male(raosaheb).
+male(sukant).
+male(sahil).
+
+female(sheshai).
+
+% Parent-child relationships
+father(raosaheb, ram).         % Raosaheb is Ram's father
+father(raosaheb, sukant).      % Raosaheb is Sukant's father
+
+mother(sheshai, ram).          % Sheshai is Ram's mother
+mother(sheshai, sukant).       % Sheshai is Sukant's mother
+
+father(ram, rohan).            % Ram is Rohan's father
+father(ram, rohit).            % Ram is Rohit's father
+
+father(sukant, sahil).         % Sukant is Sahil's father
+
+% Rules
+grandfather(X, Y) :- father(X, Z), father(Z, Y).
+grandmother(X, Y) :- mother(X, Z), parent(Z, Y).
+
+parent(X, Y) :- father(X, Y).
+parent(X, Y) :- mother(X, Y).
+
+uncle(X, Y) :- 
+    father(Z, Y), 
+    father(W, Z), 
+    father(W, X), 
+    X \= Z.
+
+
+6. monkey banana
+
+
+
